@@ -106,7 +106,7 @@ size_t PKCS11_EC_PrivateKey::key_length() const {
 }
 
 std::vector<uint8_t> PKCS11_EC_PrivateKey::public_key_bits() const {
-   return public_point().encode(EC_Point_Format::Compressed);
+   return public_point().encode(point_encoding());
 }
 
 size_t PKCS11_EC_PrivateKey::estimated_strength() const {
@@ -118,7 +118,7 @@ bool PKCS11_EC_PrivateKey::check_key(RandomNumberGenerator& /*rng*/, bool /*stro
 }
 
 AlgorithmIdentifier PKCS11_EC_PrivateKey::algorithm_identifier() const {
-   return AlgorithmIdentifier(object_identifier(), domain().DER_encode(EC_Group_Encoding::Explicit));
+   return AlgorithmIdentifier(object_identifier(), DER_domain());
 }
 }  // namespace Botan::PKCS11
 

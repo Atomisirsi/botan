@@ -139,13 +139,45 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_EC_PrivateKey : public virtual Private_Key,
       inline const EC_Group& domain() const { return m_domain_params; }
 
       /**
+      * Set the point encoding method to be used when encoding this key.
+      * @param enc the encoding to use
+      */
+      void set_point_encoding(EC_Point_Format enc);
+
+      /**
+      * Return the DER encoding of this keys domain in whatever format
+      * is preset for this particular key
+      */
+      std::vector<uint8_t> DER_domain() const {
+        return domain().DER_encode(domain_format());
+      }
+
+      /**
+      * Get the domain parameter encoding to be used when encoding this key.
+      * @result the encoding to use
+      */
+      EC_Group_Encoding domain_format() const { return m_domain_encoding; }
+
+      /**
+      * Get the point encoding method to be used when encoding this key.
+      * @result the encoding to use
+      */
+      EC_Point_Format point_encoding() const { return m_point_encoding; }
+
+      /**
+      * Set the domain parameter encoding to be used when encoding this key.
+      * @param enc the encoding to use
+      */
+      void set_parameter_encoding(EC_Group_Encoding enc);
+
+      /**
       * Sets the associated public point of this private key
       * @param point the public point
-      * @param point_encoding encoding of the point (default DER-encoded)
+      * @param enc encoding of the point (default DER-encoded)
       */
-      void set_public_point(const EC_Point& point, PublicPointEncoding point_encoding = PublicPointEncoding::Der) {
+      void set_public_point(const EC_Point& point, PublicPointEncoding enc = PublicPointEncoding::Der) {
          m_public_key = point;
-         m_point_encoding = point_encoding;
+         m_point_encoding = enc;
       }
 
       /**
@@ -153,7 +185,7 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_EC_PrivateKey : public virtual Private_Key,
        * This could be either `PublicPointEncoding::Raw` or `PublicPointEncoding::Der`. By default this is set to `Der`,
        * but some tokens might expect `Raw`-encoded public keys, e.g. when using this private key for key agreement.
        */
-      void set_point_encoding(PublicPointEncoding point_encoding) { m_point_encoding = point_encoding; }
+      void set_public_point_encoding(PublicPointEncoding enc) { m_public_point_encoding = enc; }
 
       /**
       * Gets the public_point
@@ -171,7 +203,7 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_EC_PrivateKey : public virtual Private_Key,
       }
 
       /// @return the encoding format for the public point when it is passed to cryptoki functions as an argument
-      PublicPointEncoding point_encoding() const { return m_point_encoding; }
+      PublicPointEncoding public_point_encoding() const { return m_public_point_encoding; }
 
       // Private_Key methods
 
@@ -188,7 +220,9 @@ class BOTAN_PUBLIC_API(2, 0) PKCS11_EC_PrivateKey : public virtual Private_Key,
    private:
       EC_Group m_domain_params;
       EC_Point m_public_key;
-      PublicPointEncoding m_point_encoding = PublicPointEncoding::Der;
+      PublicPointEncoding m_public_point_encoding{PublicPointEncoding::Der};
+      EC_Point_Format m_point_encoding{EC_Point_Format::Uncompressed};
+      EC_Group_Encoding m_domain_encoding{EC_Group_Encoding::Explicit};
 };
 }  // namespace Botan::PKCS11
 
